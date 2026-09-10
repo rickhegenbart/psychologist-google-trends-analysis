@@ -1,0 +1,124 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(DT)
+library(trendyy)              
+library(lubridate)               
+```
+
+
+
+```{r}
+Psychologist <- trendy("Psychologist")
+
+Psychologist %>% 
+  get_interest() %>% 
+  glimpse()
+```
+
+
+
+```{r}
+Psychologist %>%
+  get_interest() %>% 
+  ggplot(aes(x = date, y = hits)) +
+  geom_line()
+```
+
+The shows the searches for psychologist over a span of years.
+
+
+```{r warning=FALSE}
+Psychologist %>%
+  get_interest() %>% 
+  mutate(month = month(date)) %>%            
+  group_by(month) %>%                        
+  summarize(hits_per_month = mean(hits)) %>%      
+  ggplot(aes(x = month, y = hits_per_month)) +    
+  geom_line() +
+  scale_x_discrete(limits = factor(1:12))
+
+```
+
+This graph shows the searches for psychologist by month over a year.
+
+
+```{r warning=TRUE}
+Psychologist %>%
+  get_interest_dma() %>% 
+  datatable() %>%
+
+suppressWarnings()
+```
+
+This table shows the searches for psychologist by geographical location.
+
+
+```{r}
+Psychologist_countries <- trendy("Psychologist", geo = c("US", "CA"), from = "2015-01-01", to = "2020-01-01")
+
+Psychologist %>% 
+  get_interest() %>% 
+  glimpse()
+```
+
+
+
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+Psychologist_countries %>%
+  get_interest() %>% 
+  mutate(month = month(date)) %>%          
+  group_by(month, geo) %>%                              
+  summarize(hits_per_month = mean(hits)) %>%           
+  ggplot(aes(x = month, y = hits_per_month, color = geo)) +       
+  geom_line() +
+  scale_x_discrete(limits = factor(1:12)) +
+  theme_minimal() +
+  labs(title = "Internet searches for 'Psychologist' over time, by Canada and US")
+```
+
+This shows a comparison between searches for psychologist in Canada and the US by month, over a year.
+
+
+```{r}
+Psychologist_Psychiatrist <- trendy(c("Psychologist", "Psychiatrist"), geo = "US")
+```
+
+
+
+
+```{r}
+Psychologist_Psychiatrist %>%
+  get_interest() %>%
+  ggplot(aes(x = date, y = hits, color = keyword)) +
+  geom_line()
+```
+
+This shows a comparison of the number of searches for psychologist and the number of searches for psychiatrist over the span of years.
+
+
+```{r}
+Psychologist_Psychiatrist_images <- trendy(c("Psychologist", "Psychiatrist"), geo = "US", gprop = "images")
+```
+
+
+
+
+```{r}
+Psychologist_Psychiatrist_images %>%
+  get_interest() %>%
+  ggplot(aes(x = date, y = hits, color = keyword, gprop = "images")) +
+  geom_line()
+```
+
+This shows a comparison between the number of image searches for psychologist and psychiatrist.
+
+
+
+
+
